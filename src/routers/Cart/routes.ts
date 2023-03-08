@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import Cart from "../../schemas/Cart";
 import { IItem } from "../../schemas/Item";
+import UserDetails from "../../schemas/UserDetails";
 
 async function getAllCartItems(
   req: Request,
@@ -58,8 +59,10 @@ async function changeCartItem(req: Request, res: Response, next: NextFunction) {
         { _id: cartId, },
         { $pull: { cartItems: { item: itemId } }},
         {new: true}
-      )
-      return res.status(200).json(cart)
+      ).populate<{
+        "cartItems.item": IItem;
+      }>("cartItems.item");
+      return res.status(200).json({cartItems: cart?.cartItems})
     }
 
     if (quantity < 1) {
@@ -71,13 +74,17 @@ async function changeCartItem(req: Request, res: Response, next: NextFunction) {
         { _id: cartId, 'cartItems.item': itemId },
         { $set: { "cartItems.$.quantity": quantity}},
         { new: true},
-      )
+      ).populate<{
+        "cartItems.item": IItem;
+      }>("cartItems.item");
     } else {
       cart = await Cart.findOneAndUpdate(
         { _id: cartId,},
         { $push: { cartItems: { item: itemId, quantity: quantity } } },
         { new: true},
-      )
+      ).populate<{
+        "cartItems.item": IItem;
+      }>("cartItems.item");
     }
 
     res.status(200).json({cartItems: cart?.cartItems});
@@ -122,13 +129,17 @@ async function incrementQuantity(
         { _id: cartId, 'cartItems.item': itemId },
         { $inc: { "cartItems.$.quantity": 1}},
         { new: true},
-      )
+      ).populate<{
+        "cartItems.item": IItem;
+      }>("cartItems.item");
     } else {
       cart = await Cart.findOneAndUpdate(
         { _id: cartId,},
         { $push: { cartItems: { item: itemId, quantity: 1 } } },
         { new: true},
-      )
+      ).populate<{
+        "cartItems.item": IItem;
+      }>("cartItems.item");
     }
 
     res.status(200).json({cartItems: cart?.cartItems})
@@ -163,7 +174,9 @@ async function decrementQuantity(
       { _id: cartId, },
       { $pull: { cartItems: { quantity: {$lt: 1} } }},
       {new: true}
-    )
+    ).populate<{
+      "cartItems.item": IItem;
+    }>("cartItems.item");
 
     res.status(200).json({cartItems: cart?.cartItems});
   } catch (error) {
@@ -218,7 +231,33 @@ async function calculatePrice(req: Request, res: Response) {
   }
 }
 
-async function clearCart(req: Request, res: Response, next: NextFunction) {}
+async function clearCart(req: Request, res: Response, next: NextFunction) {
+  const cartId = req.body.user.userDetails.cart;
+
+  try {
+    // if (cartId) await Cart.findByIdAndRemove(cartId);
+    // const newCart = new Cart({cartItems: []});
+    // newCart.save();
+    // console.log(newCart)
+    // const newUserDetails = await UserDetails.findByIdAndUpdate(req.body.user.userDetails, {
+    //   $set: { cart: newCart},
+    // },{
+    //   new: true,
+    // })
+
+    // res.status(200).json(newUserDetails);
+
+    const newCart = await Cart.findByIdAndUpdate(cartId, {
+      $set: { cartItems: []},
+    }, {new: true});
+
+    res.status(200).json({cartItems: newCart?.cartItems});
+  } catch (error) {
+    return res.status(400).json({ error})
+  }
+
+
+}
 
 export const CartRoutes = {
   getAllCartItems,

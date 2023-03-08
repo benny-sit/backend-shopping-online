@@ -23,7 +23,14 @@ const OrderSchema = new Schema({
         street: { type: String},
     },
     finalPrice: { type: Number, default: 0},
-    shippingDate: { type: Date, default: new Date()},
+    shippingDate: { type: Date, default: new Date(), 
+        validate: function(input: any) {
+            /* return true only if the input is a valid date, AND is 
+            greater than or equal to the current date/time */
+            return Date.parse(input) && new Date(input) >= new Date();
+        },
+        message: (input: any) => `${input} must be greater than or equal to the current date!`
+    },
     orderDate: { type: Date, default: new Date()},
     last4digits: { type: String, required: true, minLength: 4, maxLength: 4},
     

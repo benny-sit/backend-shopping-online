@@ -7,9 +7,11 @@ async function getItems(req: Request, res: Response, next: NextFunction) {
     let categoryId = req.query.categoryId ? req.query.categoryId : '';
     let search = req.query.search ? req.query.search : '';
     
+    console.log(categoryId, search, page);
 
-    try {
-        const result = await Item.find({
+    let query: any;
+    if(categoryId) {
+        query= {
             $and: [
                 {
                     $or: [
@@ -19,7 +21,19 @@ async function getItems(req: Request, res: Response, next: NextFunction) {
                 },
                 {category: categoryId },
             ]
-        }, null, { skip: perPage * page, limit: perPage});
+        }
+    } else {
+        query = {
+            $or: [
+                {title: {$regex: search, $options: 'i'}},
+                {manufacturer: {$regex: search, $options: 'i'}},
+            ],
+        }
+    }
+
+
+    try {
+        const result = await Item.find(query, null, { skip: perPage * page, limit: perPage});
 
         res.status(200).json(result);
     } catch (error) {

@@ -18,5 +18,7 @@ router.post('/dec', CartRoutes.decrementQuantity);
 
 router.get('/price', CartRoutes.calculatePrice);
 
+router.delete('/clear', CartRoutes.clearCart);
+
 export { router as CartRouter} 
 
