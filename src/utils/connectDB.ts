@@ -6,7 +6,7 @@ export async function connectDB() {
     if( !process.env.MONGO_URI) console.log("No Mongoose URI specified");
 
     mongoose.set('strictQuery', false);
-    await mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017", () => {
+    await mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/shoppingOnline", () => {
         console.log("< DB connection established >");
         initDB();
     });

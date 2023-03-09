@@ -85,7 +85,7 @@ async function login(req: Request, res: Response, next: NextFunction) {
 
 // Using checkUser middleware to refresh
 async function refreshToken(req: Request, res: Response, next: NextFunction) {
-    const payload = {username: req.body.user.username, id: req.body.user.id, isAdmin: req.body.user.userDetails.isAdmin}
+    const payload = {username: req.body.user.username, id: req.body.user.id, isAdmin: req.body.user.userDetails.isAdmin, token: res.get('Authorization')?.split(' ')[1]}
     return res.status(200).json(payload);
 }
 

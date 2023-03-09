@@ -7,7 +7,6 @@ async function getItems(req: Request, res: Response, next: NextFunction) {
     let categoryId = req.query.categoryId ? req.query.categoryId : '';
     let search = req.query.search ? req.query.search : '';
     
-    console.log(categoryId, search, page);
 
     let query: any;
     if(categoryId) {

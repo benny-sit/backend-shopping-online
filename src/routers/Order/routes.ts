@@ -30,6 +30,8 @@ async function createOrder(req: Request, res: Response) {
     return res.status(400).json({ error });
   }
 
+  if(totalPrice === 0) return res.status(400).json({ error: { message: "Cart Is Empty" } });
+
   const order = new Order({finalPrice: totalPrice, shippingAddress: user.userDetails.address, last4digits: req.body.last4digits, cart: cartId});
   const newCart = new Cart();
 
